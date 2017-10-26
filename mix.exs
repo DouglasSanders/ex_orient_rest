@@ -22,8 +22,8 @@ defmodule ExOrientRest.Mixfile do
   defp deps do
     [
       {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
-      {:httpoison, "~> 0.8 or ~> 0.9 or ~> 0.10"},
-      {:poison, "~> 1.5 or ~> 2.0 or ~> 3.0"}
+      {:httpoison, "~> 0.13"},
+      {:poison, "~> 3.0"}
     ]
   end
 
