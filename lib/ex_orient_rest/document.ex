@@ -2,6 +2,8 @@ defmodule ExOrientRest.Document do
 
   alias ExOrientRest.Types
 
+  @reserved_fields ["@class", "@rid", "@version", "@type", "@fieldTypes"]
+
   @spec default :: Types.doc_frame
   def default, do: default("")
 
@@ -25,7 +27,7 @@ defmodule ExOrientRest.Document do
   def frame_to_content(frame) do
     frame
     |> Map.get("content", %{})
-    |> Map.merge(Map.take(frame, ["@class", "@rid", "@version", "@type"]))
+    |> Map.merge(Map.take(frame, @reserved_fields))
     |> Poison.encode!
   end
 
@@ -33,7 +35,7 @@ defmodule ExOrientRest.Document do
   def content_to_frame(content) do
     {frame, body} = content
     |> Poison.decode!
-    |> Map.split(["@class", "@rid", "@version", "@type"])
+    |> Map.split(@reserved_fields)
 
     Map.merge(default(), frame)
     |> Map.put("content", body)

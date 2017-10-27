@@ -39,22 +39,22 @@ defmodule ExOrientRest do
 
   @spec document_exists?(Types.db_connection, String.t) :: {:ok, Types.doc_frame} | {:error, Types.err}
   def document_exists?(conn, rid) do
-    Connection.head(conn, :document, %{rid: rid})
+    Connection.head(conn, :document, %{rid: String.replace_leading(rid, "#","")})
   end
 
   @spec get_document(Types.db_connection, String.t) :: {:ok, Types.doc_frame} | {:error, Types.err}
   def get_document(conn, rid) do
-    Connection.get(conn, :document, %{rid: rid})
+    Connection.get(conn, :document, %{rid: String.replace_leading(rid, "#","")})
   end
 
   @spec get_document(Types.db_connection, String.t, String.t) :: {:ok, Types.doc_frame} | {:error, Types.err}
   def get_document(conn, rid, fetch_plan) do
-    Connection.get(conn, :document, %{rid: rid, fetchPlan: fetch_plan})
+    Connection.get(conn, :document, %{rid: String.replace_leading(rid, "#",""), fetchPlan: fetch_plan})
   end
 
   @spec delete_document(Types.db_connection, String.t) :: {:ok, Types.doc_frame} | {:error, Types.err}
   def delete_document(conn, rid) do
-    Connection.delete(conn, :document, %{rid: rid})
+    Connection.delete(conn, :document, %{rid: String.replace_leading(rid, "#","")})
   end
 
   @spec get_cluster(Types.db_connection, String.t) :: {:ok, Types.doc_frame} | {:error, Types.err}

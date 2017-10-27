@@ -55,38 +55,4 @@ defmodule ExOrientRest.Types do
   """
   @type doc_frame :: %{}
 
-  @spec blank_doc(String.t) :: doc_frame
-  def blank_doc(class) do
-    %{
-      "@class" => class,
-      "@rid" => "#-1:-1",
-      "@version" => 0,
-      "content" => %{}
-    }
-  end
-
-  @spec new_doc(String.t, Map) :: doc_frame
-  def new_doc(class, content) do
-    blank_doc(class)
-    |> Map.put("content", content)
-  end
-
-  @spec frame_to_content(doc_frame) :: String.t
-  def frame_to_content(frame) do
-    frame
-    |> Map.get("content", %{})
-    |> Map.merge(Map.take(frame, ["@class", "@rid", "@version"]))
-    |> Poison.encode!
-  end
-
-  @spec content_to_frame(String.t) :: doc_frame
-  def content_to_frame(content) do
-    {frame, body} = content
-    |> Poison.decode!
-    |> Map.split(["@class", "@rid", "@version"])
-
-    Map.merge(blank_doc(""), frame)
-    |> Map.put("content", body)
-  end
-
 end

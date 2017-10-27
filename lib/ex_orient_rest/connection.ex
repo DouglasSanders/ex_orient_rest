@@ -80,7 +80,7 @@ defmodule ExOrientRest.Connection do
           (response.status_code>=200 and response.status_code<300) ->
             {:ok, Document.content_to_frame(response.body)}
           true ->
-            {:error, %{status_code: response.status_code, reason: Poison.decode!(response.body)}}
+            {:error, %{status_code: response.status_code, reason: response.body}}
         end
       :error ->
         {:error, %{status_code: -1, reason: response.reason}}
