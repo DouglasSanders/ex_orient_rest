@@ -1,40 +1,65 @@
 defmodule ExOrientRest do
-  @moduledoc """
-  Documentation for ExOrientRest.
-  """
 
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> ExOrientRest.hello
-      :world
-
-  """
-
-  alias ExOrientRest.{URL, Connection}
+  alias ExOrientRest.{URL, Connection, Types, Document}
 
   @default_connection_props %{
     host: "localhost",
     port: 2480,
     username: "root",
     password: "root",
-    database: "Satori",
     ssl: false
   }
 
-  def connect(opts \\ %{}) do
+  def connect(db, opts \\ %{}) do
     @default_connection_props
     |> Map.merge(opts)
-    |> Connection.connect
+    |> Connection.connect(%{database: db})
   end
 
   def disconnect(%{} = conn) do
-    Connection.disconnect(conn)
+    Connection.get(conn, :disconnect)
   end
 
-  def listDatabases(%{cookie: _} = conn) do
-    Connection.listDatabases(conn)
+  @spec list_databases(Types.db_connection | Types.db_properties) :: {:ok, List} | {:error, Types.err}
+  def list_databases(%{props: _} = conn) do
+    Connection.get(conn, :listDatabases)
   end
+  def list_databases(%{} = props), do: list_databases(props)
+
+
+  @spec create_document(Types.db_connection, String.t, Map) ::  {:ok, Types.doc_frame} |
+                                                                {:error, Types.err}
+  def create_document(conn, class, content) do
+    body = class
+    |> Document.new(content)
+    |> Document.frame_to_content
+
+    Connection.post(conn, :document, body)
+  end
+
+  @spec document_exists?(Types.db_connection, String.t) :: {:ok, Types.doc_frame} | {:error, Types.err}
+  def document_exists?(conn, rid) do
+    Connection.head(conn, :document, %{rid: rid})
+  end
+
+  @spec get_document(Types.db_connection, String.t) :: {:ok, Types.doc_frame} | {:error, Types.err}
+  def get_document(conn, rid) do
+    Connection.get(conn, :document, %{rid: rid})
+  end
+
+  @spec get_document(Types.db_connection, String.t, String.t) :: {:ok, Types.doc_frame} | {:error, Types.err}
+  def get_document(conn, rid, fetch_plan) do
+    Connection.get(conn, :document, %{rid: rid, fetchPlan: fetch_plan})
+  end
+
+  @spec delete_document(Types.db_connection, String.t) :: {:ok, Types.doc_frame} | {:error, Types.err}
+  def delete_document(conn, rid) do
+    Connection.delete(conn, :document, %{rid: rid})
+  end
+
+  @spec get_cluster(Types.db_connection, String.t) :: {:ok, Types.doc_frame} | {:error, Types.err}
+  def get_cluster(conn, cluster) do
+    Connection.get(conn, :cluster, %{cluster: cluster})
+  end
+
 end
