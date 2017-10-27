@@ -13,7 +13,7 @@ defmodule ExOrientRest.Connection do
   def connect(%{} = props, %{database: db} = opts) do
     {success, response} = URL.build_url(:get, :connect, props, opts)
     |> URI.to_string
-    |> HTTPoison.get(build_headers(props))
+    |> HTTPoison.get(build_headers(%{props: props}))
 
     case success do
       :ok ->
@@ -48,7 +48,7 @@ defmodule ExOrientRest.Connection do
     |> handle_response
   end
 
-  @spec put(Types.db_connection, Types.db_put_requests, Map) :: {:ok, Types.doc_frame} | {:error, Types.err}
+  @spec put(Types.db_connection, Types.db_put_requests, String.t, Map) :: {:ok, Types.doc_frame} | {:error, Types.err}
   def put(conn, type, content, params \\ %{}) do
     conn
     |> send_request(:put, URL.build_url(:put, type, conn, params), content)
@@ -102,21 +102,22 @@ defmodule ExOrientRest.Connection do
     cookie = Enum.filter(response.headers, fn(x) -> elem(x,0) == "Set-Cookie" end)
     |> Enum.map(fn(x) -> elem(x,1) end)
 
-    unless Enum.empty?(cookie), do: %{cookie: Enum.at(cookie,0)}, else: %{}
+    #unless Enum.empty?(cookie), do: %{cookie: Enum.at(cookie,0)}, else: %{}
+    %{}
   end
 
-  @spec build_headers(Types.db_properties) :: Types.db_properties
-  defp build_headers(props), do: @default_headers |> Map.merge(auth_header(props))
+  @spec build_headers(Types.db_connection) :: any()
+  defp build_headers(conn), do: @default_headers |> Map.merge(auth_header(conn.props))
 
-  @spec build_headers(Types.db_properties, String.t) :: Types.db_properties
-  defp build_headers(props, content) do
-    build_headers(props)
+  @spec build_headers(Types.db_connection, String.t) :: any()
+  defp build_headers(conn, content) do
+    build_headers(conn)
     |> Map.merge(content_length_header(content))
   end
 
-  @spec auth_header(Types.db_properties) :: Map
+  @spec auth_header(Types.db_connection) :: Map
   defp auth_header(props) do
-    if props[:cookie], do: %{}, else:
+    #if props[:cookie], do: %{}, else:
       %{"Authorization" => "Basic " <> Base.encode64("#{props.username}:#{props.password}")}
   end
 
