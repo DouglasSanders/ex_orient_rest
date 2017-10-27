@@ -52,6 +52,12 @@ defmodule ExOrientRest do
     Connection.get(conn, :document, %{rid: String.replace_leading(rid, "#",""), fetchPlan: fetch_plan})
   end
 
+  @spec replace_document(Types.db_connection, Types.doc_frame) :: {:ok, Types.doc_frame} | {:error, Types.err}
+  def replace_document(conn, frame) do
+    rid = Map.get(frame, "@rid") |> String.replace_leading("#","")
+    Connection.put(conn, :document, Document.frame_to_content(frame), %{rid: rid})
+  end
+
   @spec delete_document(Types.db_connection, String.t) :: {:ok, Types.doc_frame} | {:error, Types.err}
   def delete_document(conn, rid) do
     Connection.delete(conn, :document, %{rid: String.replace_leading(rid, "#","")})

@@ -28,6 +28,10 @@ defmodule ExOrientRest.URL do
     build_path(conn.props, "/document/#{conn.database}/#{rid}")
   end
 
+  def build_url(:put, :document, conn, %{rid: rid}) do
+    build_path(conn.props, "/document/#{conn.database}/#{rid}")
+  end
+
   def build_url(:delete, :document, conn, %{rid: rid}) do
     build_path(conn.props, "/document/#{conn.database}/#{rid}")
   end
