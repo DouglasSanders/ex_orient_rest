@@ -66,7 +66,7 @@ defmodule ExOrientRest.Connection do
   def delete(conn, type, params \\ %{}) do
     conn
     |> send_request(:delete, URL.build_url(:delete, type, conn, params))
-    |> handle_response
+    |> handle_delete_response
   end
 
   # PRIVATE
@@ -79,6 +79,22 @@ defmodule ExOrientRest.Connection do
         cond do
           (response.status_code>=200 and response.status_code<300) ->
             {:ok, Document.content_to_frame(response.body)}
+          true ->
+            {:error, %{status_code: response.status_code, reason: response.body}}
+        end
+      :error ->
+        {:error, %{status_code: -1, reason: response.reason}}
+    end
+  end
+
+  @spec handle_delete_response({:ok, HTTPoison.Response} | {:error, HTTPoison.Error}) :: {:ok} |
+                                                                                         {:error, Types.err}
+  defp handle_delete_response({success, response}) do
+    case success do
+      :ok ->
+        cond do
+          (response.status_code>=200 and response.status_code<300) ->
+            {:ok}
           true ->
             {:error, %{status_code: response.status_code, reason: response.body}}
         end

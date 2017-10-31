@@ -12,33 +12,26 @@ defmodule ExOrientRest.Document do
     %{
       "@class" => class,
       "@rid" => "#-1:-1",
-      "@version" => 0,
-      "content" => %{}
+      "@version" => 0
     }
   end
 
   @spec new(String.t, Map) :: Types.doc_frame
   def new(class, content) do
     default(class)
-    |> Map.put("content", content)
+    |> Map.merge(content)
   end
 
   @spec frame_to_content(Types.doc_frame) :: String.t
   def frame_to_content(frame) do
     frame
-    |> Map.get("content", %{})
-    |> Map.merge(Map.take(frame, @reserved_fields))
     |> Poison.encode!
   end
 
   @spec content_to_frame(String.t) :: Types.doc_frame
   def content_to_frame(content) do
-    {frame, body} = content
+    content
     |> Poison.decode!
-    |> Map.split(@reserved_fields)
-
-    Map.merge(default(), frame)
-    |> Map.put("content", body)
   end
 
 end
