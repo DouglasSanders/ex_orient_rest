@@ -19,7 +19,7 @@ defmodule ExOrientRest.URLTest do
   end
 
   describe "disconnect" do
-    test "build_url/4 with :get, :connect", setup do
+    test "build_url/4 with :get, :disconnect", setup do
       url = URL.build_url(:get, :disconnect, setup.conn, %{}) |> URI.to_string
       assert url == "http://#{setup.conn.props.host}:#{setup.conn.props.port}/disconnect"
     end

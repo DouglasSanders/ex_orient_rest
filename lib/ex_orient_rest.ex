@@ -10,14 +10,10 @@ defmodule ExOrientRest do
     ssl: false
   }
 
-  def connect(db, opts \\ %{}) do
+  def connect(db, %{} = opts \\ %{}) when is_binary(db) do
     @default_connection_props
     |> Map.merge(opts)
     |> Connection.connect(%{database: db})
-  end
-
-  def disconnect(%{} = conn) do
-    Connection.get(conn, :disconnect)
   end
 
   @spec list_databases(Types.db_connection | Types.db_properties) :: {:ok, List} | {:error, Types.err}

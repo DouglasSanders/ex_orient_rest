@@ -8,6 +8,7 @@ defmodule ExOrientRest.Connection do
     "Accept-Encoding" => "gzip,deflate"
   }
 
+  @error_status_code 500
 
   @spec connect(Types.db_properties, Map) :: {:ok, Types.db_connection} | {:error, Types.err}
   def connect(%{} = props, %{database: db} = opts) do
@@ -17,13 +18,19 @@ defmodule ExOrientRest.Connection do
 
     case success do
       :ok ->
-        conn = Map.merge(%{
-          props: props,
-          database: db},
-          get_cookie(response)
-        )
-        {:ok, conn}
-      :error -> {:error, %{status_code: response.status_code, reason: response.body}}
+        if response.status_code >= 200 and response.status_code <300 do
+          conn = Map.merge(%{
+            props: props,
+            database: db},
+            get_cookie(response)
+          )
+          {:ok, conn}
+        else
+          {:error, %{status_code: response.status_code, reason: Poison.decode!(response.body)}}
+        end
+      :error ->
+        {:error, %{status_code: @error_status_code, reason: response.reason}}
+
     end
   end
 
@@ -31,7 +38,7 @@ defmodule ExOrientRest.Connection do
   def get(conn, type, params \\ %{}) do
     conn
     |> send_request(:get, URL.build_url(:get, type, conn, params))
-    |> handle_response
+    |> handle_get_response
   end
 
   @spec head(Types.db_connection, Types.db_head_requests, Map) :: {:ok, boolean()} | {:error, Types.err}
@@ -45,7 +52,7 @@ defmodule ExOrientRest.Connection do
   def post(conn, type, content, params \\ %{}) do
     conn
     |> send_request(:post, URL.build_url(:post, type, conn, params), content)
-    |> handle_response
+    |> handle_create_response
   end
 
   @spec put(Types.db_connection, Types.db_put_requests, String.t, Map) :: {:ok, Types.doc_frame} | {:error, Types.err}
@@ -76,14 +83,48 @@ defmodule ExOrientRest.Connection do
   defp handle_response({success, response}) do
     case success do
       :ok ->
-        cond do
-          (response.status_code>=200 and response.status_code<300) ->
-            {:ok, Document.content_to_frame(response.body)}
-          true ->
-            {:error, %{status_code: response.status_code, reason: response.body}}
+        if response.status_code >= 200 and response.status_code <300 do
+          {:ok, Document.content_to_frame(response.body)}
+        else
+          standard_error_from_response(response)
         end
       :error ->
-        {:error, %{status_code: -1, reason: response.reason}}
+        server_error_from_response(response)
+    end
+  end
+
+  @spec handle_get_response({:ok, HTTPoison.Response} | {:error, HTTPoison.Error}) :: {:ok, Types.doc_frame} |
+                                                                                  {:error, Types.err}
+  defp handle_get_response({success, response}) do
+    case success do
+      :ok ->
+        case response.status_code do
+          200 ->
+            {:ok, Document.content_to_frame(response.body)}
+          404 ->
+            {:error, %{status_code: response.status_code, reason: %{errors: [response.body]}}}
+          _ ->
+            standard_error_from_response(response)
+        end
+      :error ->
+        server_error_from_response(response)
+    end
+  end
+
+
+  @spec handle_create_response({:ok, HTTPoison.Response} | {:error, HTTPoison.Error}) :: {:ok, Types.doc_frame} |
+                                                                                  {:error, Types.err}
+  defp handle_create_response({success, response}) do
+    case success do
+      :ok ->
+        case response.status_code do
+          201 ->
+            {:ok, Document.content_to_frame(response.body)}
+          _ ->
+            standard_error_from_response(response)
+        end
+      :error ->
+        server_error_from_response(response)
     end
   end
 
@@ -92,14 +133,14 @@ defmodule ExOrientRest.Connection do
   defp handle_delete_response({success, response}) do
     case success do
       :ok ->
-        cond do
-          (response.status_code>=200 and response.status_code<300) ->
+        case response.status_code do
+          204 ->
             {:ok}
-          true ->
-            {:error, %{status_code: response.status_code, reason: response.body}}
+          _ ->
+            standard_error_from_response(response)
         end
       :error ->
-        {:error, %{status_code: -1, reason: response.reason}}
+        server_error_from_response(response)
     end
   end
 
@@ -144,5 +185,13 @@ defmodule ExOrientRest.Connection do
   @spec content_length_header(String.t) :: Map
   defp content_length_header(content) do
     %{"Content-Length" => byte_size(content)}
+  end
+
+  defp standard_error_from_response(response) do
+    {:error, %{status_code: response.status_code, reason: Poison.decode!(response.body)}}
+  end
+
+  defp server_error_from_response(response) do
+    {:error, %{status_code: @error_status_code, reason: response.reason}}
   end
 end
