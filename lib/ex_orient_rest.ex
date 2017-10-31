@@ -10,14 +10,10 @@ defmodule ExOrientRest do
     ssl: false
   }
 
-  def connect(db, opts \\ %{}) do
+  def connect(db, %{} = opts \\ %{}) when is_binary(db) do
     @default_connection_props
     |> Map.merge(opts)
     |> Connection.connect(%{database: db})
-  end
-
-  def disconnect(%{} = conn) do
-    Connection.get(conn, :disconnect)
   end
 
   @spec list_databases(Types.db_connection | Types.db_properties) :: {:ok, List} | {:error, Types.err}
@@ -56,6 +52,12 @@ defmodule ExOrientRest do
   def replace_document(conn, frame) do
     rid = Map.get(frame, "@rid") |> String.replace_leading("#","")
     Connection.put(conn, :document, Document.frame_to_content(frame), %{rid: rid})
+  end
+
+  @spec update_document(Types.db_connection, Types.doc_frame) :: {:ok, Types.doc_frame} | {:error, Types.err}
+  def update_document(conn, frame) do
+    rid = Map.get(frame, "@rid") |> String.replace_leading("#","")
+    Connection.patch(conn, :document, Document.frame_to_content(frame), %{rid: rid})
   end
 
   @spec delete_document(Types.db_connection, String.t) :: {:ok, Types.doc_frame} | {:error, Types.err}

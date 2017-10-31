@@ -4,11 +4,11 @@ defmodule ExOrientRest.URL do
     build_path(props, "/connect/#{db}")
   end
 
-  def build_url(:get, :disconnect, conn) do
+  def build_url(:get, :disconnect, conn, _) do
     build_path(conn.props, "/disconnect")
   end
 
-  def build_url(:get, :listDatabases, conn) do
+  def build_url(:get, :listDatabases, conn, _) do
     build_path(conn.props, "/listDatabases")
   end
 
@@ -21,7 +21,7 @@ defmodule ExOrientRest.URL do
   end
 
   def build_url(:get, :document, conn, %{rid: rid} = opts) do
-    build_path(conn.props, "/document/#{conn.database}/#{rid}/#{optional_param(opts, :fetchPlan)}")
+    build_path(conn.props, "/document/#{conn.database}/#{rid}#{optional_param(opts, :fetchPlan)}")
   end
 
   def build_url(:head, :document, conn, %{rid: rid}) do
@@ -29,6 +29,10 @@ defmodule ExOrientRest.URL do
   end
 
   def build_url(:put, :document, conn, %{rid: rid}) do
+    build_path(conn.props, "/document/#{conn.database}/#{rid}")
+  end
+
+  def build_url(:patch, :document, conn, %{rid: rid}) do
     build_path(conn.props, "/document/#{conn.database}/#{rid}")
   end
 
@@ -41,7 +45,7 @@ defmodule ExOrientRest.URL do
   end
 
   def build_url(:get, :documentbyclass, conn, %{class: class, record_pos: rec_pos} = opts) do
-    build_path(conn.props, "/documentbyclass/#{conn.database}/#{class}/#{rec_pos}/#{optional_param(opts, :fetchPlan)}")
+    build_path(conn.props, "/documentbyclass/#{conn.database}/#{class}/#{rec_pos}#{optional_param(opts, :fetchPlan)}")
   end
 
   # PRIVATE
@@ -52,5 +56,7 @@ defmodule ExOrientRest.URL do
 
   defp scheme(props), do: if props[:ssl], do: "https", else: "http"
 
-  defp optional_param(opts, param, default \\ ""), do: Map.get(opts, param, default)
+  defp optional_param(opts, param) do
+    if Map.has_key?(opts,param), do: "/" <> Map.get(opts, param), else: ""
+  end
 end
