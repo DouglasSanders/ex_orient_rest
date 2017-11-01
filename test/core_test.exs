@@ -49,7 +49,7 @@ defmodule ExOrientRest.CoreTest do
     end
 
     test "returns 404 when the document does not exist", setup do
-      rid =  Random.random_number_string(4) <> ":" <> Random.random_number_string(4)
+      rid =  Random.rand_rid()
       {success, response} = DB.get_document(setup.conn, rid)
       assert success == :error
       assert response.status_code == 404
@@ -73,11 +73,55 @@ defmodule ExOrientRest.CoreTest do
     end
 
     test "returns 404 when the document does not exist", setup do
-      rid =  Random.random_number_string(4) <> ":" <> Random.random_number_string(4)
+      rid =  Random.rand_rid()
       {success, response} = DB.delete_document(setup.conn, rid)
       assert success == :error
       assert response.status_code == 404
     end
+  end
+
+  describe "batch commands" do
+    test "batch multiple creations", setup do
+      operations = [
+        %{type: "c", record: %{
+        "@class" => "V",
+        "name" => Random.random_string()
+        }},
+        %{type: "c", record: %{
+        "@class" => "V",
+        "name" => Random.random_string()
+        }},
+        %{type: "c", record: %{
+          "@class" => "V",
+          "name" => Random.random_string()
+        }}
+      ]
+
+      {success} = DB.batch(setup.conn, operations)
+      assert success == :ok
+    end
+
+    test "batch with failing transaction", setup do
+      operations = [
+        %{type: "c", record: %{
+        "@class" => "V",
+        "name" => Random.random_string()
+        }},
+        %{type: "d", record: %{
+        "@rid" => "123:456"
+        }},
+        %{type: "c", record: %{
+          "@class" => "V",
+          "name" => Random.random_string()
+        }}
+      ]
+
+      {success, reason} = DB.batch(setup.conn, operations)
+      assert success == :error
+      assert reason.status_code == 404
+
+    end
+
   end
 
 

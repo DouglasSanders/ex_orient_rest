@@ -21,6 +21,15 @@ defmodule Random do
   end
 
   @doc """
+  Generate a random rid for OrientDB.
+  Used for testing only.
+  """
+  def rand_rid() do
+    gen_random_string(4, "123456789") <> ":" <> gen_random_string(4, "123456789")
+  end
+
+
+  @doc """
   Generate a random string of the requested length from the characters 0-9.
 
   Used for testing only.

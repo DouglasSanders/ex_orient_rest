@@ -55,6 +55,13 @@ defmodule ExOrientRest.Connection do
     |> handle_create_response
   end
 
+  @spec batch(Types.db_connection, Types.db_post_requests, Map) :: {:ok, Types.doc_frame} | {:error, Types.err}
+  def batch(conn, type, content, params \\ %{}) do
+    conn
+    |> send_request(:post, URL.build_url(:post, type, conn, params), content)
+    |> handle_batch_response
+  end
+
   @spec put(Types.db_connection, Types.db_put_requests, String.t, Map) :: {:ok, Types.doc_frame} | {:error, Types.err}
   def put(conn, type, content, params \\ %{}) do
     conn
@@ -111,6 +118,20 @@ defmodule ExOrientRest.Connection do
     end
   end
 
+  @spec handle_batch_response({:ok, HTTPoison.Response} | {:error, HTTPoison.Error}) :: {:ok, Types.doc_frame} |
+                                                                                  {:error, Types.err}
+  defp handle_batch_response({success, response}) do
+    case success do
+      :ok ->
+        if response.status_code >= 200 and response.status_code <300 do
+          {:ok}
+        else
+          standard_error_from_response(response)
+        end
+      :error ->
+        server_error_from_response(response)
+    end
+  end
 
   @spec handle_create_response({:ok, HTTPoison.Response} | {:error, HTTPoison.Error}) :: {:ok, Types.doc_frame} |
                                                                                   {:error, Types.err}
@@ -184,7 +205,7 @@ defmodule ExOrientRest.Connection do
 
   @spec content_length_header(String.t) :: Map
   defp content_length_header(content) do
-    %{"Content-Length" => byte_size(content)}
+    %{"Content-Length" => String.length(content)}
   end
 
   defp standard_error_from_response(response) do

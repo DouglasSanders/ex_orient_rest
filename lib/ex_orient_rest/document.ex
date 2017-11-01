@@ -11,8 +11,7 @@ defmodule ExOrientRest.Document do
   def default(class) do
     %{
       "@class" => class,
-      "@rid" => "#-1:-1",
-      "@version" => 0
+      "@rid" => "#-1:-1"
     }
   end
 
