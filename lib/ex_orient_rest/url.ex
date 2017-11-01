@@ -44,6 +44,10 @@ defmodule ExOrientRest.URL do
     build_path(conn.props, "/document/#{conn.database}")
   end
 
+  def build_url(:post, :batch, conn, _) do
+    build_path(conn.props, "/batch/#{conn.database}")
+  end
+
   def build_url(:get, :documentbyclass, conn, %{class: class, record_pos: rec_pos} = opts) do
     build_path(conn.props, "/documentbyclass/#{conn.database}/#{class}/#{rec_pos}#{optional_param(opts, :fetchPlan)}")
   end

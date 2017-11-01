@@ -70,4 +70,8 @@ defmodule ExOrientRest do
     Connection.get(conn, :cluster, %{cluster: cluster})
   end
 
+  @spec batch(Types.db_connection, List, boolean()) :: {:ok} | {:error, Types.err}
+  def batch(conn, ops, xaction \\ true) do
+    Connection.batch(conn, :batch, "{\"transaction\": #{true}, \"operations\": #{Poison.encode!(ops)}}")
+  end
 end
