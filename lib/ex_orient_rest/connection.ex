@@ -139,6 +139,8 @@ defmodule ExOrientRest.Connection do
     case success do
       :ok ->
         case response.status_code do
+          200 ->
+            {:ok, Document.content_to_frame(response.body)}
           201 ->
             {:ok, Document.content_to_frame(response.body)}
           _ ->

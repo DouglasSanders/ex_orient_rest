@@ -12,6 +12,18 @@ defmodule ExOrientRest.URL do
     build_path(conn.props, "/listDatabases")
   end
 
+  def build_url(:get, :database, conn, _) do
+    build_path(conn.props, "/database/#{conn.database}")
+  end
+
+  def build_url(:post, :database, conn, %{db_storage: storage}) do
+    build_path(conn.props, "/database/#{conn.database}/#{storage}")
+  end
+
+  def build_url(:delete, :database, conn, _) do
+    build_path(conn.props, "/database/#{conn.database}")
+  end
+
   def build_url(:get, :class, conn, %{class: class}) do
     build_path(conn.props, "/class/#{conn.database}/#{class}")
   end

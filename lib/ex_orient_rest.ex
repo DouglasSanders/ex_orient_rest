@@ -22,6 +22,26 @@ defmodule ExOrientRest do
   end
   def list_databases(%{} = props), do: list_databases(props)
 
+  @spec create_database(Map, String.t) :: {:ok, Map} | {:error, Types.err}
+  def create_database(%{} = props, name, storage \\ "plocal") do
+    props = @default_connection_props |> Map.merge(props)
+    %{props: props, database: name}
+    |> Connection.post(:database, "", %{db_storage: storage})
+  end
+
+  @spec get_database(Map, String.t) :: {:ok, Map} | {:error, Types.err}
+  def get_database(%{} = props, name) do
+    props = @default_connection_props |> Map.merge(props)
+    %{props: props, database: name}
+    |> Connection.get(:database)
+  end
+
+  @spec delete_database(Map, String.t) :: {:ok} | {:error, Types.err}
+  def delete_database(%{} = props, name) do
+    props = @default_connection_props |> Map.merge(props)
+    %{props: props, database: name}
+    |> Connection.delete(:database)
+  end
 
   @spec create_document(Types.db_connection, String.t, Map) ::  {:ok, Types.doc_frame} |
                                                                 {:error, Types.err}
