@@ -34,7 +34,7 @@ defmodule ExOrientRest.Connection do
     end
   end
 
-  @spec get(Types.db_connection, Types.db_get_requests, Map) :: {:ok, Types.doc_frame} | {:error, Types.err}
+  @spec get(Types.db_connection, Types.db_get_requests, Map) :: {:ok, Map} | {:error, Types.err}
   def get(conn, type, params \\ %{}) do
     conn
     |> send_request(:get, URL.build_url(:get, type, conn, params))
@@ -48,28 +48,28 @@ defmodule ExOrientRest.Connection do
     |> handle_response
   end
 
-  @spec post(Types.db_connection, Types.db_post_requests, Map) :: {:ok, Types.doc_frame} | {:error, Types.err}
+  @spec post(Types.db_connection, Types.db_post_requests, Map) :: {:ok, Map} | {:error, Types.err}
   def post(conn, type, content, params \\ %{}) do
     conn
     |> send_request(:post, URL.build_url(:post, type, conn, params), content)
     |> handle_create_response
   end
 
-  @spec batch(Types.db_connection, Types.db_post_requests, Map) :: {:ok, Types.doc_frame} | {:error, Types.err}
+  @spec batch(Types.db_connection, Types.db_post_requests, Map) :: {:ok, Map} | {:error, Types.err}
   def batch(conn, type, content, params \\ %{}) do
     conn
     |> send_request(:post, URL.build_url(:post, type, conn, params), content)
     |> handle_batch_response
   end
 
-  @spec put(Types.db_connection, Types.db_put_requests, String.t, Map) :: {:ok, Types.doc_frame} | {:error, Types.err}
+  @spec put(Types.db_connection, Types.db_put_requests, String.t, Map) :: {:ok, Map} | {:error, Types.err}
   def put(conn, type, content, params \\ %{}) do
     conn
     |> send_request(:put, URL.build_url(:put, type, conn, params), content)
     |> handle_response
   end
 
-  @spec patch(Types.db_connection, Types.db_patch_requests, Map) :: {:ok, Types.doc_frame} | {:error, Types.err}
+  @spec patch(Types.db_connection, Types.db_patch_requests, Map) :: {:ok, Map} | {:error, Types.err}
   def patch(conn, type, content, params \\ %{}) do
     conn
     |> send_request(:patch, URL.build_url(:patch, type, conn, params), content)
@@ -85,7 +85,7 @@ defmodule ExOrientRest.Connection do
 
   # PRIVATE
 
-  @spec handle_response({:ok, HTTPoison.Response} | {:error, HTTPoison.Error}) :: {:ok, Types.doc_frame} |
+  @spec handle_response({:ok, HTTPoison.Response} | {:error, HTTPoison.Error}) :: {:ok, Map} |
                                                                                   {:error, Types.err}
   defp handle_response({success, response}) do
     case success do
@@ -100,7 +100,7 @@ defmodule ExOrientRest.Connection do
     end
   end
 
-  @spec handle_get_response({:ok, HTTPoison.Response} | {:error, HTTPoison.Error}) :: {:ok, Types.doc_frame} |
+  @spec handle_get_response({:ok, HTTPoison.Response} | {:error, HTTPoison.Error}) :: {:ok, Map} |
                                                                                   {:error, Types.err}
   defp handle_get_response({success, response}) do
     case success do
@@ -118,7 +118,7 @@ defmodule ExOrientRest.Connection do
     end
   end
 
-  @spec handle_batch_response({:ok, HTTPoison.Response} | {:error, HTTPoison.Error}) :: {:ok, Types.doc_frame} |
+  @spec handle_batch_response({:ok, HTTPoison.Response} | {:error, HTTPoison.Error}) :: {:ok, Map} |
                                                                                   {:error, Types.err}
   defp handle_batch_response({success, response}) do
     case success do
@@ -133,7 +133,7 @@ defmodule ExOrientRest.Connection do
     end
   end
 
-  @spec handle_create_response({:ok, HTTPoison.Response} | {:error, HTTPoison.Error}) :: {:ok, Types.doc_frame} |
+  @spec handle_create_response({:ok, HTTPoison.Response} | {:error, HTTPoison.Error}) :: {:ok, Map} |
                                                                                   {:error, Types.err}
   defp handle_create_response({success, response}) do
     case success do

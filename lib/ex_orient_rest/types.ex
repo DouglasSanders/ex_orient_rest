@@ -50,9 +50,4 @@ defmodule ExOrientRest.Types do
   """
   @type err :: %{reason: any(), status_code: non_neg_integer()}
 
-  @typedoc """
-  Document metadata, and storage for the nested document.
-  """
-  @type doc_frame :: %{}
-
 end
