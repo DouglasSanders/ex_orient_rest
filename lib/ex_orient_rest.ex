@@ -48,7 +48,7 @@ defmodule ExOrientRest do
   def create_document(conn, class, content) do
     body = class
     |> Document.new(content)
-    |> Document.frame_to_content
+    |> Poison.encode!
 
     Connection.post(conn, :document, body)
   end
@@ -71,13 +71,13 @@ defmodule ExOrientRest do
   @spec replace_document(Types.db_connection, Map) :: {:ok, Map} | {:error, Types.err}
   def replace_document(conn, frame) do
     rid = Map.get(frame, "@rid") |> String.replace_leading("#","")
-    Connection.put(conn, :document, Document.frame_to_content(frame), %{rid: rid})
+    Connection.put(conn, :document, Poison.encode!(frame), %{rid: rid})
   end
 
   @spec update_document(Types.db_connection, Map) :: {:ok, Map} | {:error, Types.err}
   def update_document(conn, frame) do
     rid = Map.get(frame, "@rid") |> String.replace_leading("#","")
-    Connection.patch(conn, :document, Document.frame_to_content(frame), %{rid: rid})
+    Connection.patch(conn, :document, Poison.encode!(frame), %{rid: rid})
   end
 
   @spec delete_document(Types.db_connection, String.t) :: {:ok, Map} | {:error, Types.err}

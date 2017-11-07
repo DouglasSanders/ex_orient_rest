@@ -91,7 +91,7 @@ defmodule ExOrientRest.Connection do
     case success do
       :ok ->
         if response.status_code >= 200 and response.status_code <300 do
-          {:ok, Document.content_to_frame(response.body)}
+          {:ok, Poison.decode!(response.body)}
         else
           standard_error_from_response(response)
         end
@@ -107,7 +107,7 @@ defmodule ExOrientRest.Connection do
       :ok ->
         case response.status_code do
           200 ->
-            {:ok, Document.content_to_frame(response.body)}
+            {:ok, Poison.decode!(response.body)}
           404 ->
             {:error, %{status_code: response.status_code, reason: %{errors: [response.body]}}}
           _ ->
@@ -140,9 +140,9 @@ defmodule ExOrientRest.Connection do
       :ok ->
         case response.status_code do
           200 ->
-            {:ok, Document.content_to_frame(response.body)}
+            {:ok, Poison.decode!(response.body)}
           201 ->
-            {:ok, Document.content_to_frame(response.body)}
+            {:ok, Poison.decode!(response.body)}
           _ ->
             standard_error_from_response(response)
         end
