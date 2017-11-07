@@ -4,10 +4,10 @@ defmodule ExOrientRest.Document do
 
   @reserved_fields ["@class", "@rid", "@version", "@type", "@fieldTypes"]
 
-  @spec default :: Map
+  @spec default() :: map()
   def default, do: default("")
 
-  @spec default(String.t) :: Map
+  @spec default(String.t) :: map()
   def default(class) do
     %{
       "@class" => class,
@@ -15,22 +15,9 @@ defmodule ExOrientRest.Document do
     }
   end
 
-  @spec new(String.t, Map) :: Map
+  @spec new(binary(), map()) :: map()
   def new(class, content) do
     default(class)
     |> Map.merge(content)
   end
-
-  @spec frame_to_content(Map) :: String.t
-  def frame_to_content(frame) do
-    frame
-    |> Poison.encode!
-  end
-
-  @spec content_to_frame(String.t) :: Map
-  def content_to_frame(content) do
-    content
-    |> Poison.decode!
-  end
-
 end

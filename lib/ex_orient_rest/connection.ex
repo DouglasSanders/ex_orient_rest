@@ -2,7 +2,6 @@ defmodule ExOrientRest.Connection do
   alias ExOrientRest.{URL, Types, Document}
   require Logger
 
-
   @default_headers %{
     "Accept"          => "Application/json; Charset=utf-8",
     "Accept-Encoding" => "gzip,deflate"
@@ -22,7 +21,7 @@ defmodule ExOrientRest.Connection do
           conn = Map.merge(%{
             props: props,
             database: db},
-            get_cookie(response)
+            cookie: ""
           )
           {:ok, conn}
         else
@@ -177,35 +176,24 @@ defmodule ExOrientRest.Connection do
     HTTPoison.request(method, URI.to_string(url), body, build_headers(conn, body), hackney: hackney_cookie(conn))
   end
 
-  @spec get_cookie(%HTTPoison.Response{}) :: Map
-  defp get_cookie(%HTTPoison.Response{} = response) do
-    cookie = Enum.filter(response.headers, fn(x) -> elem(x,0) == "Set-Cookie" end)
-    |> Enum.map(fn(x) -> elem(x,1) end)
-
-    #unless Enum.empty?(cookie), do: %{cookie: Enum.at(cookie,0)}, else: %{}
-    %{}
-  end
-
-  @spec build_headers(Types.db_connection) :: any()
+  @spec build_headers(%{props: Types.db_properties}) :: map()
   defp build_headers(conn), do: @default_headers |> Map.merge(auth_header(conn.props))
 
-  @spec build_headers(Types.db_connection, String.t) :: any()
+  @spec build_headers(Types.db_connection, String.t) :: map()
   defp build_headers(conn, content) do
     build_headers(conn)
     |> Map.merge(content_length_header(content))
   end
 
-  @spec auth_header(Types.db_connection) :: Map
-  defp auth_header(props) do
-    #if props[:cookie], do: %{}, else:
-      %{"Authorization" => "Basic " <> Base.encode64("#{props.username}:#{props.password}")}
+  @spec auth_header(Types.db_connection) :: map()
+  defp auth_header(%{props: %{username: username, password: password}}) do
+    %{"Authorization" => "Basic " <> Base.encode64("#{username}:#{password}")}
   end
 
-  @spec hackney_cookie(Types.db_connection) :: List
-  defp hackney_cookie(%{cookie: cookie}), do: [cookie: [cookie]]
-  defp hackney_cookie(%{}), do: []
+  @spec hackney_cookie(Types.db_connection) :: [cookie: [String.t]] | []
+  defp hackney_cookie(%{cookie: cookie}) when cookie != "", do: [cookie: [cookie]]
+  defp hackney_cookie(_), do: []
 
-  @spec content_length_header(String.t) :: Map
   defp content_length_header(content) do
     %{"Content-Length" => String.length(content)}
   end
