@@ -92,6 +92,24 @@ defmodule ExOrientRest do
 
   @spec batch(Types.db_connection, List, boolean()) :: {:ok} | {:error, Types.err}
   def batch(conn, ops, xaction \\ true) do
-    Connection.batch(conn, :batch, "{\"transaction\": #{true}, \"operations\": #{Poison.encode!(ops)}}")
+    Connection.batch(conn, :batch, "{\"transaction\": #{xaction}, \"operations\": #{Poison.encode!(ops)}}")
+  end
+
+  def command(conn, language, content) do
+    body = content |> Poison.encode!
+    Connection.post(conn, :command, body, %{language: language})
+  end
+
+  def get_class(conn, class) do
+    Connection.get(conn, :class, %{class: class})
+  end
+
+  def create_class(conn, class) do
+    Connection.post(conn, :class, "", %{class: class})
+  end
+
+  def add_properties(conn, class, props) do
+    body = props |> Poison.encode!
+    Connection.post(conn, :property, body, %{class: class})
   end
 end

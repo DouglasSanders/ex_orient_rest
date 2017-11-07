@@ -64,6 +64,22 @@ defmodule ExOrientRest.URL do
     build_path(conn.props, "/documentbyclass/#{conn.database}/#{class}/#{rec_pos}#{optional_param(opts, :fetchPlan)}")
   end
 
+  def build_url(:get, :class, conn, %{class: class}) do
+    build_path(conn.props, "/class/#{conn.database}/#{class}")
+  end
+
+  def build_url(:post, :class, conn, %{class: class}) do
+    build_path(conn.props, "/class/#{conn.database}/#{class}")
+  end
+
+  def build_url(:post, :property, conn, %{class: class}) do
+    build_path(conn.props, "/property/#{conn.database}/#{class}")
+  end
+
+  def build_url(:post, :command, conn, %{language: language}) do
+    build_path(conn.props, "/command/#{conn.database}/#{language}")
+  end
+
   # PRIVATE
 
   defp build_path(props, path), do: base_url(props) |> struct(%{path: path})
