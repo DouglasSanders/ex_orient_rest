@@ -8,9 +8,10 @@ defmodule ExOrientRest.Connection do
   }
 
   @error_status_code 500
+  @unknown_error {:error, %{status_code: @error_status_code, reason: "Unknown"}}
 
   @spec connect(Types.db_properties, Map) :: {:ok, Types.db_connection} | {:error, Types.err}
-  def connect(%{} = props, %{database: db} = opts) do
+  def connect(props, %{database: db} = opts) do
     {success, response} = URL.build_url(:get, :connect, props, opts)
     |> URI.to_string
     |> HTTPoison.get(build_headers(%{props: props}))
@@ -29,7 +30,6 @@ defmodule ExOrientRest.Connection do
         end
       :error ->
         {:error, %{status_code: @error_status_code, reason: response.reason}}
-
     end
   end
 
@@ -96,6 +96,7 @@ defmodule ExOrientRest.Connection do
         end
       :error ->
         server_error_from_response(response)
+      _ -> @unknown_error
     end
   end
 
@@ -114,6 +115,7 @@ defmodule ExOrientRest.Connection do
         end
       :error ->
         server_error_from_response(response)
+      _ -> @unknown_error
     end
   end
 
@@ -129,6 +131,7 @@ defmodule ExOrientRest.Connection do
         end
       :error ->
         server_error_from_response(response)
+      _ -> @unknown_error
     end
   end
 
@@ -147,6 +150,7 @@ defmodule ExOrientRest.Connection do
         end
       :error ->
         server_error_from_response(response)
+      _ -> @unknown_error
     end
   end
 
@@ -163,6 +167,7 @@ defmodule ExOrientRest.Connection do
         end
       :error ->
         server_error_from_response(response)
+      _ -> @unknown_error
     end
   end
 
@@ -177,7 +182,7 @@ defmodule ExOrientRest.Connection do
   end
 
   @spec build_headers(%{props: Types.db_properties}) :: map()
-  defp build_headers(conn), do: @default_headers |> Map.merge(auth_header(conn.props))
+  defp build_headers(%{props: props}) when is_map(props), do: @default_headers |> Map.merge(auth_header(props))
 
   @spec build_headers(Types.db_connection, String.t) :: map()
   defp build_headers(conn, content) do
@@ -185,9 +190,9 @@ defmodule ExOrientRest.Connection do
     |> Map.merge(content_length_header(content))
   end
 
-  @spec auth_header(Types.db_connection) :: map()
-  defp auth_header(%{props: %{username: username, password: password}}) do
-    %{"Authorization" => "Basic " <> Base.encode64("#{username}:#{password}")}
+  @spec auth_header(%{props: Types.db_properties}) :: %{required(String.t) => String.t}
+  defp auth_header(%{props: props}) do
+    %{"Authorization" => "Basic " <> Base.encode64("#{props.username}:#{props.password}")}
   end
 
   @spec hackney_cookie(Types.db_connection) :: [cookie: [String.t]] | []
