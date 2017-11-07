@@ -19,12 +19,7 @@ defmodule ExOrientRest.Connection do
     case success do
       :ok ->
         if response.status_code >= 200 and response.status_code <300 do
-          conn = Map.merge(%{
-            props: props,
-            database: db},
-            cookie: ""
-          )
-          {:ok, conn}
+          {:ok, %{props: props, database: db, cookie: ""}}
         else
           {:error, %{status_code: response.status_code, reason: Poison.decode!(response.body)}}
         end
@@ -181,7 +176,7 @@ defmodule ExOrientRest.Connection do
     HTTPoison.request(method, URI.to_string(url), body, build_headers(conn, body), hackney: hackney_cookie(conn))
   end
 
-  @spec build_headers(%{props: Types.db_properties}) :: map()
+  @spec build_headers(%{props: Types.db_properties}) :: %{required(String.t) => String.t}
   defp build_headers(%{props: props}) when is_map(props), do: @default_headers |> Map.merge(auth_header(props))
 
   @spec build_headers(Types.db_connection, String.t) :: map()
