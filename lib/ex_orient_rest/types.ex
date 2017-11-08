@@ -30,7 +30,7 @@ defmodule ExOrientRest.Types do
   Valid requests to make on a request of the type, with a database
   """
   @type db_get_requests :: :connect | :database | :class | :cluster |
-    :function | :export | :disconnect | :document |
+    :function | :export | :disconnect | :document | :listDatabases |
     :documentbyclass | :allocation | :index | :query
 
   @type db_head_requests :: :document | :documentbyclass

@@ -103,6 +103,7 @@ defmodule ExOrientRest.Connection do
 
   @spec handle_get_response({:ok, HTTPoison.Response.t} |
                             {:error, HTTPoison.Error.t}) :: {:ok, map()} |
+                                                            {:ok, list()} |
                                                             {:error, Types.err}
   defp handle_get_response({success, response}) do
     case success do
