@@ -6,12 +6,12 @@ defmodule ExOrientRest.URL do
     build_path(props, "/connect/#{db}")
   end
 
-  @spec build_url(:get, Types.db_get_requests, Types.db_connection, Map) :: URI.t
-  @spec build_url(:post, Types.db_post_requests, Types.db_connection, Map) :: URI.t
-  @spec build_url(:put, Types.db_put_requests, Types.db_connection, Map) :: URI.t
-  @spec build_url(:patch, Types.db_patch_requests, Types.db_connection, Map) :: URI.t
-  @spec build_url(:head, Types.db_head_requests, Types.db_connection, Map) :: URI.t
-  @spec build_url(:delete, Types.db_delete_requests, Types.db_connection, Map) :: URI.t
+  @spec build_url(:get, Types.db_get_requests, Types.db_connection, map()) :: URI.t
+  @spec build_url(:post, Types.db_post_requests, Types.db_connection, map()) :: URI.t
+  @spec build_url(:put, Types.db_put_requests, Types.db_connection, map()) :: URI.t
+  @spec build_url(:patch, Types.db_patch_requests, Types.db_connection, map()) :: URI.t
+  @spec build_url(:head, Types.db_head_requests, Types.db_connection, map()) :: URI.t
+  @spec build_url(:delete, Types.db_delete_requests, Types.db_connection, map()) :: URI.t
 
   def build_url(:get, :disconnect, conn, _) do
     build_path(conn.props, "/disconnect")

@@ -6,7 +6,7 @@ defmodule ExOrientRest.Types do
   """
   @type db_properties :: %{
     host: String.t,
-    port: non_neg_integer() ,
+    port: non_neg_integer(),
     username: String.t,
     password: String.t,
     ssl: boolean()
@@ -18,8 +18,7 @@ defmodule ExOrientRest.Types do
   """
   @type db_connection :: %{
     props: db_properties,
-    database: String.t,
-    cookie: String.t
+    database: String.t
   }
 
   @typedoc """
@@ -48,6 +47,6 @@ defmodule ExOrientRest.Types do
   @typedoc """
   An error we want to return to the client.
   """
-  @type err :: %{reason: any(), status_code: non_neg_integer()}
+  @type err :: %{reason: any(), status_code: integer()}
 
 end
