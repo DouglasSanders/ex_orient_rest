@@ -6,7 +6,7 @@ defmodule ExOrientRest.Types do
   """
   @type db_properties :: %{
     host: String.t,
-    port: non_neg_integer() ,
+    port: non_neg_integer(),
     username: String.t,
     password: String.t,
     ssl: boolean()
@@ -18,8 +18,7 @@ defmodule ExOrientRest.Types do
   """
   @type db_connection :: %{
     props: db_properties,
-    database: String.t,
-    cookie: String.t
+    database: String.t
   }
 
   @typedoc """
@@ -31,7 +30,7 @@ defmodule ExOrientRest.Types do
   Valid requests to make on a request of the type, with a database
   """
   @type db_get_requests :: :connect | :database | :class | :cluster |
-    :function | :export | :disconnect | :document |
+    :function | :export | :disconnect | :document | :listDatabases |
     :documentbyclass | :allocation | :index | :query
 
   @type db_head_requests :: :document | :documentbyclass
@@ -48,11 +47,6 @@ defmodule ExOrientRest.Types do
   @typedoc """
   An error we want to return to the client.
   """
-  @type err :: %{reason: any(), status_code: non_neg_integer()}
-
-  @typedoc """
-  Document metadata, and storage for the nested document.
-  """
-  @type doc_frame :: %{}
+  @type err :: %{reason: any(), status_code: integer()}
 
 end

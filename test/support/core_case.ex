@@ -18,7 +18,13 @@ defmodule ExOrientRest.CoreCase do
       password: "root",
       ssl: false
     }
-    {:ok, conn} = ExOrientRest.connect("Satori")
+
+    db = "Test"
+
+    ExOrientRest.delete_database(connection_props, db)
+    {:ok, _} = ExOrientRest.create_database(connection_props, db)
+    {:ok, conn} = ExOrientRest.connect(db)
+
     [conn: conn]
   end
 
